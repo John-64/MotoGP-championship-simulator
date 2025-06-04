@@ -4,7 +4,7 @@ function ChampionshipList() {
   const [championships, setChampionships] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/championships")
+    fetch("http://127.0.0.1:5000/api/championships")
       .then(res => res.json())
       .then(data => setChampionships(data))
       .catch(err => console.error(err));
@@ -15,7 +15,7 @@ function ChampionshipList() {
       <h2 className="text-xl font-semibold mb-2">Campionati creati</h2>
       <ul className="space-y-2">
         {championships.map(ch => (
-          <li key={ch.id} className="bg-white p-2 rounded shadow">
+          <li key={ch.id} className="bg-white cursor-pointer p-2 rounded shadow">
             <strong>{ch.name}</strong> <br />
             <small>{new Date(ch.created_at).toLocaleString()}</small>
           </li>
