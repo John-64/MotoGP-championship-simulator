@@ -1,19 +1,27 @@
-export default function TrackSelector({ tracks, selectedTrack, setSelectedTrack }) {
+import { useEffect, useState } from "react";
+
+function TrackList() {
+  const [tracks, setTracks] = useState([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/api/track")
+      .then(res => res.json())
+      .then(data => setTracks(data))
+      .catch(err => console.error(err));
+  }, []);
+
   return (
-    <div className="mb-6">
-      <h2 className="font-semibold text-lg mb-3">Seleziona tracciato:</h2>
-      <select
-        value={selectedTrack || ""}
-        onChange={(e) => setSelectedTrack(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-      >
-        <option value="" disabled>-- Seleziona un tracciato --</option>
-        {tracks.map((track) => (
-          <option key={track.track_id} value={track.track_name}>
-            {track.track_name}
-          </option>
+    <div className="p-5">
+      <h2 className="text-xl font-semibold mb-4">Lista tracciati</h2>
+      <ul>
+        {tracks.map((r, i) => (
+          <li key={i} className="border-b py-2">
+            {r.track_name} - Nazione: {r.track_country}
+          </li>
         ))}
-      </select>
+      </ul>
     </div>
   );
 }
+
+export default TrackList;

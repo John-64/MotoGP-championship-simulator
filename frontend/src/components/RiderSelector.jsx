@@ -2,6 +2,9 @@ export default function RiderSelector({ riders, selectedRiders, toggleRider }) {
   return (
     <div className="mb-6">
       <h2 className="font-semibold text-lg mb-3">Seleziona piloti:</h2>
+      <div className="text-sm text-gray-600 font-semibold">
+        Selezionati: {selectedRiders.length}
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-120 overflow-y-auto p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
         {riders.map((rider) => {
           const isSelected = selectedRiders.some(r => r.rider_name === rider.rider_name);

@@ -2,6 +2,9 @@ export default function TrackSelector({ tracks, selectedTracks, toggleTrack }) {
   return (
     <div className="mb-6">
       <h2 className="font-semibold text-lg mb-3">Seleziona tracciati:</h2>
+      <div className="text-sm text-gray-600 font-semibold">
+        Selezionati: {selectedTracks.length}
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-60 overflow-y-auto p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
         {tracks.map((track) => {
           const isSelected = selectedTracks.some(t => t.track_name === track.track_name);

@@ -18,37 +18,50 @@ db = client[os.getenv("DB_NAME")]
 def get_riders():
     raw_riders = list(db.riders.find({}, {"_id": 0}))
     riders = []
+    print(raw_riders)
     for r in raw_riders:
         riders.append({
-            "rider_name": r.get("Riders All Time in All Classes", "Unknown Rider"),
-            "victories": r.get("Victories", 0),
-            "second_places": r.get("2nd places", 0),
-            "third_places": r.get("3rd places", 0),
-            "pole_positions": r.get("Pole positions from '74 to 2022", 0),
-            "fastest_laps": r.get("Race fastest lap to 2022", 0),
-            "world_championships": r.get("World Championships", 0),
+            "rider_name": r.get("Name", "Unknown"),
+            "rider_first_places": r.get("First Places", 0),
+            "rider_second_places": r.get("Second Places", 0),
+            "rider_third_places": r.get("Third Places", 0),
+            "rider_pole_positions": r.get("Number poles positions", 0),
+            "rider_world_championships": r.get("Number World Championships", 0),
         })
     return jsonify(riders)
 
-'''
-DA FARE
 @app.route("/api/track", methods=["GET"])
 def get_track():
-'''
+    raw_track = list(db.track.find({}))
+    track = []
+    for r in raw_track:
+        track.append({
+            "track_name": r.get("Track", "Unknown"),
+            "track_country": r.get("Country", "Unknown"),
+        })
+    return jsonify(track)
 
 @app.route("/api/create_championships", methods=["POST"])
 def create_championship():
     data = request.get_json()
     name = data.get("name")
     riders = data.get("riders", [])
+    tracks = data.get("tracks", [])
 
     if not name:
         return jsonify({"error": "Il nome del campionato è obbligatorio."}), 400
+    
+    if not riders:
+        return jsonify({"error": "Devi selezionare almeno un pilota."}), 400
+    
+    if not tracks:
+        return jsonify({"error": "Devi selezionare almeno un circuito."}), 400
 
     championship = {
         "name": name,
         "created_at": datetime.utcnow(),
         "riders": riders,
+        "tracks": tracks,
         "races": [],
         "standings": []
     }

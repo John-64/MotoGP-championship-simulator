@@ -12,11 +12,13 @@ export default function ChampionshipForm() {
   const [selectedTracks, setSelectedTracks] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/riders")
+    fetch("http://127.0.0.1:5000/api/riders")
       .then((res) => res.json())
       .then(setRiders);
 
-    fetch("http://localhost:5000/api/tracks")
+    console.log("Tracks being sent:", selectedTracks);
+      
+    fetch("http://127.0.0.1:5000/api/track")
       .then((res) => res.json())
       .then(setTracks);
   }, []);
@@ -43,7 +45,7 @@ export default function ChampionshipForm() {
       return;
     }
 
-    const response = await fetch("http://localhost:5000/api/create_championships", {
+    const response = await fetch("http://127.0.0.1:5000/api/create_championships", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -58,6 +60,7 @@ export default function ChampionshipForm() {
     if (response.ok) {
       setChampionshipName("");
       setSelectedRiders([]);
+      setSelectedTracks([]);
       setSearchTerm("");
     }
   };
@@ -86,9 +89,6 @@ export default function ChampionshipForm() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <span className="text-sm text-gray-600 font-semibold">
-          Selezionati: {selectedRiders.length}
-        </span>
       </div>
 
       <RiderSelector
@@ -105,7 +105,7 @@ export default function ChampionshipForm() {
 
       <button
         onClick={handleSubmit}
-        className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded w-full transition"
+        className="mt-6 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded w-full transition"
       >
         Crea campionato
       </button>

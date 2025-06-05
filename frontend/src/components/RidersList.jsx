@@ -16,7 +16,7 @@ function RidersList() {
       <ul>
         {riders.map((r, i) => (
           <li key={i} className="border-b py-2">
-            {r.rider_name} - Vittorie: {r.victories}
+            {r.rider_name} - Vittorie: {r.rider_first_places}
           </li>
         ))}
       </ul>
