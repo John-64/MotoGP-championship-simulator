@@ -7,9 +7,12 @@ export default function ChampionshipForm() {
   const [selectedRiders, setSelectedRiders] = useState([]);
   const [championshipName, setChampionshipName] = useState("");
   const [message, setMessage] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [tracks, setTracks] = useState([]);
   const [selectedTracks, setSelectedTracks] = useState([]);
+
+  useEffect(() => {
+    document.title = "Crea Campionato";
+  }, []);
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/api/riders")
@@ -40,8 +43,16 @@ export default function ChampionshipForm() {
   };
 
   const handleSubmit = async () => {
-    if (!championshipName.trim() || selectedRiders.length === 0 || selectedTracks.length === 0) {
-      setMessage("Inserisci un nome, almeno un pilota e un tracciato.");
+    let missingFields = [];
+
+    if (!championshipName.trim()) missingFields.push("il NOME del campionato");
+    if (selectedRiders.length === 0) missingFields.push("almeno un PILOTA");
+    if (selectedTracks.length === 0) missingFields.push("almeno un TRACCIATO");
+
+    if (missingFields.length > 0) {
+      const message = "Inserisci " + missingFields.join(" e ");
+      setMessage(message);
+      setTimeout(() => setMessage(""), 2000);
       return;
     }
 
@@ -57,64 +68,73 @@ export default function ChampionshipForm() {
 
     const data = await response.json();
     setMessage(data.message || "Errore");
+    setTimeout(() => setMessage(""), 2000);
+
     if (response.ok) {
       setChampionshipName("");
       setSelectedRiders([]);
       setSelectedTracks([]);
-      setSearchTerm("");
     }
   };
 
-  const filteredRiders = riders.filter(r =>
-    r.rider_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
-    <div className="mx-auto h-full p-6 w-full">
-      <h1 className="text-3xl font-extrabold mb-6 text-center">Crea campionato</h1>
-
+    <div className="h-full px-6 pt-6 w-full relative">
+      <label className="text-sm text-gray-600 font-semibold mb-2">Nome campionato</label>
       <input
         type="text"
         placeholder="Nome campionato"
-        className="border border-gray-300 rounded p-3 w-full mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        className="border border-gray-300 bg-white rounded p-3 w-full mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         value={championshipName}
         onChange={(e) => setChampionshipName(e.target.value)}
       />
 
-      <div className="mb-4 flex items-center justify-between">
-        <input
-          type="text"
-          placeholder="Cerca piloti..."
-          className="border border-gray-300 rounded p-2 w-2/3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      
+
+      <div className="flex gap-3">
+        <div className="w-1/2 flex flex-col items-center justify-between shadow-md rounded-2xl px-2">
+
+          <RiderSelector
+            className="w-full h-96"
+            riders={riders}
+            selectedRiders={selectedRiders}
+            toggleRider={toggleRider}
+          />
+        </div>
+        
+        <div className="w-1/2 flex flex-col items-center justify-between shadow-md rounded-2xl px-2">
+          <TrackSelector
+            className="w-full h-96"
+            tracks={tracks}
+            selectedTracks={selectedTracks}
+            toggleTrack={toggleTrack}
+          />
+        </div>
       </div>
+      
 
-      <RiderSelector
-        riders={filteredRiders}
-        selectedRiders={selectedRiders}
-        toggleRider={toggleRider}
-      />
+      <div className="flex flex-col items-center">
+        <button
+          onClick={handleSubmit}
+          className="mt-6 cursor-pointer bg-black hover:bg-red-900 text-white font-bold py-3 rounded-full w-1/4 transition"
+        >
+          Crea campionato
+        </button>
+      </div>
+      
 
-      <TrackSelector
-        tracks={tracks}
-        selectedTracks={selectedTracks}
-        toggleTrack={toggleTrack}
-      />
-
-      <button
-        onClick={handleSubmit}
-        className="mt-6 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded w-full transition"
+    {message && (
+      <p
+        className={`absolute left-1/2 top-0 transform -translate-x-1/2 mt-4 text-sm px-4 py-2 rounded shadow-md transition-all duration-300 ${
+          message.toLowerCase().includes("inserisci") || message.toLowerCase().includes("errore")
+            ? "text-red-700 bg-red-100 border border-red-300"
+            : "text-green-700 bg-green-100 border border-green-300"
+        }`}
       >
-        Crea campionato
-      </button>
+        {message}
+      </p>
+    )}
 
-      {message && (
-        <p className={`mt-4 text-center text-sm ${message.includes("Errore") ? "text-red-600" : "text-green-600"}`}>
-          {message}
-        </p>
-      )}
     </div>
   );
 }

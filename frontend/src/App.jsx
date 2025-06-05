@@ -1,5 +1,6 @@
 import './index.css'
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import AddRiders from "./components/AddRiders";
 import ChampionshipForm from "./components/ChampionshipForm";
 import ChampionshipList from "./components/ChampionshipList";
@@ -7,19 +8,63 @@ import ChampionshipDetails from "./components/ChampionshipDetails";
 import RidersList from "./components/RidersList";
 import Header from './Header';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const path = location.pathname;
+
+    if (path === "/") {
+      document.title = "MotoGP Championship Simulator";
+    } else if (path === "/championship") {
+      document.title = "Crea campionato";
+    } else if (path.startsWith("/championship/") && path.includes("add-riders")) {
+      document.title = "Aggiungi piloti";
+    } else if (path.startsWith("/championship/")) {
+      document.title = "Dettagli Campionato";
+    } else if (path === "/riders") {
+      document.title = "Lista Piloti";
+    } else {
+      document.title = "MotoGP Championship Simulator";
+    }
+  }, [location]);
+
+    // Se il messaggio arriva da navigate, lo leggo e mostro
+  useEffect(() => {
+    if (location.state?.message) {
+      setMessage(location.state.message);
+      // Pulisci lo stato di history per non mostrare il messaggio più volte
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  // Fai sparire il messaggio dopo 3 secondi
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   return (
-    <BrowserRouter>
-      <Header></Header>
-      <Routes>
+    <>
+      <Header />
+      {message && (
+        <p
+          className={`fixed left-1/2 top-4 transform -translate-x-1/2 text-sm px-4 py-2 rounded shadow-md transition-all duration-300 z-50 ${
+            message.toLowerCase().includes("inserisci") || message.toLowerCase().includes("errore")
+              ? "text-red-700 bg-red-100 border border-red-300"
+              : "text-green-700 bg-green-100 border border-green-300"
+          }`}
+        >
+          {message}
+        </p>
+      )}
+      <Routes className='w-full min-h-100 h-screen font-pt'>
         <Route path="/" element={
-          <div className='w-full min-h-150 font-pt'>
             <div className='p-5'>
               <ChampionshipList />
-              <button onClick={() => window.location.href = "/championship"}
-                className="bg-black hover:bg-gray-800 cursor-pointer text-white font-bold py-2 px-4 rounded mt-4"  
-              >Crea un nuovo campionato</button>
-            </div>
           </div>} 
         />
         <Route path="/championship" element={<ChampionshipForm />} />
@@ -27,6 +72,14 @@ function App() {
         <Route path="/championship/:id/add-riders" element={<AddRiders />} />
         <Route path="/riders" element={<RidersList />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

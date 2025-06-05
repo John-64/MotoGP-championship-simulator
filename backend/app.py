@@ -60,6 +60,7 @@ def create_championship():
     championship = {
         "name": name,
         "created_at": datetime.utcnow(),
+        "state": "beginning",
         "riders": riders,
         "tracks": tracks,
         "races": [],
@@ -77,9 +78,17 @@ def list_championships():
         response.append({
             "id": str(c["_id"]),
             "name": c["name"],
+            "state": c["state"],
             "created_at": c["created_at"]
         })
     return jsonify(response)
+
+@app.route("/api/championships/<id>", methods=["DELETE"])
+def delete_championship(id):
+    result = db.custom_championships.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count == 0:
+        return jsonify({"error": "Campionato non trovato."}), 404
+    return jsonify({"message": "Campionato eliminato."})
 
 @app.route("/api/championships/<id>", methods=["GET"])
 def get_championship(id):
