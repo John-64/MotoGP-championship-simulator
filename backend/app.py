@@ -30,6 +30,12 @@ def get_riders():
         })
     return jsonify(riders)
 
+'''
+DA FARE
+@app.route("/api/track", methods=["GET"])
+def get_track():
+'''
+
 @app.route("/api/create_championships", methods=["POST"])
 def create_championship():
     data = request.get_json()

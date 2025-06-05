@@ -4,35 +4,27 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
+# Carica le variabili da .env
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parents[1]
+CLEAN_DATA_PATH = PROJECT_ROOT / 'backend/dataset_clean'
 
 # Connessione al DB
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 
-# Mappatura file in collection
-csv_map = {
-    "constructure-world-championship.csv": "constructors",
-    "grand-prix-events-held.csv": "races",
-    "grand-prix-race-winners.csv": "race_winners",
-    "riders-finishing-positions.csv": "results",
-    "riders-info.csv": "riders",
-    "same-nation-podium-lockouts.csv": "podium_lockouts"
-}
+for filename in os.listdir(CLEAN_DATA_PATH):
+    if filename.endswith(".csv"):
+        path = f"{CLEAN_DATA_PATH}/{filename}"
+        collection_name = os.path.splitext(filename)[0]  # prende il nome senza estensione
+        df = pd.read_csv(path)
+        data = df.fillna("").to_dict(orient="records")
+        db[collection_name].delete_many({})  # svuota la collection
+        db[collection_name].insert_many(data)
+        print(f"[✓] Importato {filename} in collection '{collection_name}'")
 
-
-base_path = Path(__file__).resolve().parent.parent / "dataset"
-
-# Importazione
-for filename, collection_name in csv_map.items():
-    path = f"{base_path}/{filename}"
-    df = pd.read_csv(path, encoding="utf-8")
-    data = df.fillna("").to_dict(orient="records")
-    db[collection_name].delete_many({})
-    db[collection_name].insert_many(data)
-    print(f"[✓] Importato {filename} in collection '{collection_name}'")
-
-print("Importazione completata!")
+print("✅ Importazione completata!")
