@@ -1,12 +1,14 @@
 import './index.css'
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Header from './Header';
 import AddRiders from "./components/AddRiders";
 import ChampionshipForm from "./components/ChampionshipForm";
 import ChampionshipList from "./components/ChampionshipList";
 import ChampionshipDetails from "./components/ChampionshipDetails";
 import RidersList from "./components/RidersList";
-import Header from './Header';
+import TrackList from './components/TrackList';
+import ResultList from './components/ResultList';
 
 function AppContent() {
   const location = useLocation();
@@ -22,24 +24,25 @@ function AppContent() {
     } else if (path.startsWith("/championship/") && path.includes("add-riders")) {
       document.title = "Aggiungi piloti";
     } else if (path.startsWith("/championship/")) {
-      document.title = "Dettagli Campionato";
+      document.title = "Dettagli campionato";
     } else if (path === "/riders") {
-      document.title = "Lista Piloti";
+      document.title = "Lista piloti";
+    } else if (path === "/track") {
+      document.title = "Lista circuiti";
+    } else if (path === "/results") {
+      document.title = "Risultati";
     } else {
       document.title = "MotoGP Championship Simulator";
     }
   }, [location]);
 
-    // Se il messaggio arriva da navigate, lo leggo e mostro
   useEffect(() => {
     if (location.state?.message) {
       setMessage(location.state.message);
-      // Pulisci lo stato di history per non mostrare il messaggio più volte
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
-  // Fai sparire il messaggio dopo 3 secondi
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 3000);
@@ -71,6 +74,8 @@ function AppContent() {
         <Route path="/championship/:id" element={<ChampionshipDetails />} />
         <Route path="/championship/:id/add-riders" element={<AddRiders />} />
         <Route path="/riders" element={<RidersList />} />
+        <Route path="/track" element={<TrackList />} />
+        <Route path="/results" element={<ResultList />} />
       </Routes>
     </>
   );

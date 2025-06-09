@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ReactCountryFlag from "react-country-flag"
 
 function RidersList() {
   const [riders, setRiders] = useState([]);
@@ -65,7 +66,21 @@ function RidersList() {
             getSortedRiders().map((r, i) => (
               <li key={i} className="px-4 py-3 text-gray-700 hover:bg-gray-50 transition">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold">{r.rider_name}</span>
+                  <div className="font-semibold flex flex-col justify-center items-start">
+                    {r.rider_name}
+                    <div className="text-xs font-light text-gray-400 flex items-center gap-1">
+                      <ReactCountryFlag
+                        countryCode={r.rider_country}
+                        svg
+                        style={{
+                          width: '1em',
+                          height: '1em',
+                        }}
+                      />
+                      {r.rider_country} • 1st place: {r.rider_first_places} • 2nd place: {r.rider_second_places} • 3rd place: {r.rider_third_places} • Pole positions: {r.rider_pole_positions}
+                    </div>
+                  </div>
+
                   <ul className="flex flex-col items-end text-sm text-gray-500">
                     <li className="flex items-center gap-1">
                       Titoli mondiali: {r.rider_world_championships}

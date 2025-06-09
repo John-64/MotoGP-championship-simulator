@@ -11,15 +11,9 @@ export default function ChampionshipForm() {
   const [selectedTracks, setSelectedTracks] = useState([]);
 
   useEffect(() => {
-    document.title = "Crea Campionato";
-  }, []);
-
-  useEffect(() => {
     fetch("http://127.0.0.1:5000/api/riders")
       .then((res) => res.json())
       .then(setRiders);
-
-    console.log("Tracks being sent:", selectedTracks);
       
     fetch("http://127.0.0.1:5000/api/track")
       .then((res) => res.json())
@@ -125,7 +119,7 @@ export default function ChampionshipForm() {
 
     {message && (
       <p
-        className={`absolute left-1/2 top-0 transform -translate-x-1/2 mt-4 text-sm px-4 py-2 rounded shadow-md transition-all duration-300 ${
+        className={`absolute left-1/2 top-0 transform -translate-x-1/2 mt-4 text-sm px-4 py-2 rounded shadow-md transition-all duration-300 z-50 ${
           message.toLowerCase().includes("inserisci") || message.toLowerCase().includes("errore")
             ? "text-red-700 bg-red-100 border border-red-300"
             : "text-green-700 bg-green-100 border border-green-300"

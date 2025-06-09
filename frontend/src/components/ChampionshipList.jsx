@@ -6,27 +6,35 @@ function ChampionshipList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/championships")
-      .then(res => res.json())
-      .then(data => {
-        const priority = {
-          finished: 0,
-          racing: 1,
-          beginning: 2
-        };
+  fetch("http://127.0.0.1:5000/api/championships")
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      console.log("Dati ricevuti:", data);
 
-        const sorted = data.sort((a, b) => {
-          const stateDiff = priority[a.state] - priority[b.state];
-          if (stateDiff !== 0) return stateDiff;
+      const priority = {
+        finished: 0,
+        racing: 1,
+        beginning: 2
+      };
 
-          // Ordina per data più recente
-          return new Date(b.created_at) - new Date(a.created_at);
-        });
+      const sorted = data.sort((a, b) => {
+        const stateDiff = priority[a.state] - priority[b.state];
+        if (stateDiff !== 0) return stateDiff;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
 
-        setChampionships(sorted);
-      })
-      .catch(err => console.error(err));
-  }, []);
+      setChampionships(sorted);
+    })
+    .catch(err => {
+      console.error("Errore nel fetch:", err);
+    });
+}, []);
+
 
 
   const goToDetails = (id) => {
