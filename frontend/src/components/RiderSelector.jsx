@@ -8,40 +8,40 @@ export default function RiderSelector({ riders, selectedRiders, toggleRider, cla
   );
 
   return (
-    <div className="w-full">
-      <h2 className="font-semibold w-full text-center text-lg uppercase">Piloti</h2>
-      <div className="flex justify-between items-center gap">
-        <div className="text-sm text-gray-600 font-semibold mb-2 w-1/4">
-          Selezionati: {selectedRiders.length}
+    <div className={`${className}`}>
+      <div className="flex flex-col h-[15%] justify-start items-center px-4 bg-red-600 rounded-t-xl pt-2">
+        <div className="w-full h-full flex justify-between items-center gap-2">
+          <input
+            type="text"
+            placeholder="Cerca piloti..."
+            className="border bg-white border-gray-300 rounded-lg p-1 w-3/4 h-10 mb-2 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div className="flex justify-end items-center h-10 text-sm font-semibold mb-2 border bg-red-800 text-white border-red-300 rounded-lg px-2">
+            Selezionati: {selectedRiders.length}
+          </div>
         </div>
-
-         <input
-          type="text"
-          placeholder="Cerca piloti..."
-          className="border bg-white border-gray-300 rounded p-2 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
       </div>
 
-      <div className={`mb-2 ${className}`}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-full w-full overflow-y-auto p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+      <div className="h-[85%] rounded-b-2xl border-t-2 border-gray-500 p-2 bg-white">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-full w-full p-3 overflow-y-auto">
           {filteredRiders.map((rider) => {
             const isSelected = selectedRiders.some(r => r.rider_name === rider.rider_name);
             return (
               <label
                 key={rider.rider_name}
-                className={`flex items-center gap-3 p-2 cursor-pointer rounded border ${
+                className={`flex items-center justify-center text-center gap-3 p-2 cursor-pointer rounded border bg-gray-100 border-gray-400 ${
                   isSelected
-                    ? "bg-blue-100 border-blue-400"
-                    : "border-transparent hover:bg-gray-100"
+                    ? "bg-red-100 border-red-400"
+                    : "hover:bg-gray-300"
                 } transition-colors duration-200`}
               >
                 <input
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleRider(rider)}
-                  className="form-checkbox h-5 w-5 text-blue-600"
+                  className="hidden"
                 />
                 <span className="select-none text-gray-800">{rider.rider_name}</span>
               </label>

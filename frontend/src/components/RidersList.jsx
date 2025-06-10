@@ -38,11 +38,11 @@ function RidersList() {
   };
 
   return (
-    <div className="p-6 w-full h-[calc(100%-10%)] mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+    <div className="px-6 p-4 w-full mx-auto" style={{ height: 'calc(100dvh - 60px)' }}>
+      <div className="h-[8%] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
         <input
           type="text"
-          placeholder="Cerca pilota..."
+          placeholder="Cerca pilota"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 w-full md:w-64"
@@ -53,14 +53,13 @@ function RidersList() {
           onChange={(e) => setSortOption(e.target.value)}
           className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700"
         >
-          <option value="name">Ordina per Nome (A-Z)</option>
-          <option value="titles">Ordina per Titoli mondiali</option>
-          <option value="wins">Ordina per Vittorie</option>
-          <option value="podiums">Ordina per Podi</option>
+          <option value="name">Nome (A-Z)</option>
+          <option value="titles">Titoli mondiali</option>
+          <option value="wins">Vittorie</option>
+          <option value="podiums">Podi</option>
         </select>
       </div>
-
-      <div className="h-[95%] overflow-y-auto border bg-white border-gray-200 rounded-lg">
+      <div className="h-[90%] overflow-y-auto border bg-white border-gray-200 rounded-lg">
         <ul className="divide-y divide-gray-200">
           {getSortedRiders().length > 0 ? (
             getSortedRiders().map((r, i) => (

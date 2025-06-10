@@ -271,7 +271,38 @@ function ChampionshipDetails() {
           </div>
 
           {/* Eventi della Gara */}
-          {raceHistory[0].race_events && raceHistory[0].race_events.length > 0 && <div className="mt-6"><h3 className="text-lg font-semibold mb-3">📰 Eventi della Gara</h3><div className="bg-gray-50 rounded-lg p-4 max-h-48 overflow-y-auto">{raceHistory[0].race_events.map((event, index) => <div key={index} className="mb-2 text-sm"><span className="font-medium text-red-600">Giro {event.giro}:</span><span className="ml-2">{event.pilota} - {event.motivo}</span></div>)}</div></div>}
+          {/* Eventi della Gara */}
+{raceHistory[0].race_events && raceHistory[0].race_events.length > 0 && (
+  <div className="mt-6">
+    <h3 className="text-lg font-semibold mb-3">📰 Eventi della Gara</h3>
+    <div className="bg-gray-50 rounded-lg p-4 max-h-48 overflow-y-auto">
+      {raceHistory[0].race_events.map((event, index) => (
+        <div key={index} className="mb-2 text-sm">
+          <span className={`font-medium ${
+            event.tipo === 'ritiro' ? 'text-red-600' :
+            event.tipo === 'sorpasso' ? 'text-green-600' :
+            event.tipo === 'errore_lieve' ? 'text-yellow-600' :
+            'text-blue-600'
+          }`}>
+            {event.tipo === 'ritiro' ? '❌' :
+             event.tipo === 'sorpasso' ? '🏎️' :
+             event.tipo === 'errore_lieve' ? '⚠️' :
+             '📝'} Giro {event.giro}:
+          </span>
+          <span className="ml-2">
+            {event.pilota} - {event.motivo}
+          </span>
+        </div>
+      ))}
+    </div>
+    {/* Statistiche eventi */}
+    <div className="mt-2 text-xs text-gray-600">
+      Totale eventi: {raceHistory[0].race_events.length} | 
+      Ritiri: {raceHistory[0].race_events.filter(e => e.tipo === 'ritiro').length} | 
+      Sorpassi: {raceHistory[0].race_events.filter(e => e.tipo === 'sorpasso').length}
+    </div>
+  </div>
+)}
         </section>
       )}
 

@@ -68,53 +68,56 @@ export default function ChampionshipForm() {
       setChampionshipName("");
       setSelectedRiders([]);
       setSelectedTracks([]);
+      const successMessage = encodeURIComponent(data.message || "Campionato creato con successo!");
+      window.location.href = `/?message=${successMessage}`;
     }
   };
 
 
   return (
-    <div className="h-full px-6 pt-6 w-full relative">
-      <label className="text-sm text-gray-600 font-semibold mb-2">Nome campionato</label>
-      <input
-        type="text"
-        placeholder="Nome campionato"
-        className="border border-gray-300 bg-white rounded p-3 w-full mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        value={championshipName}
-        onChange={(e) => setChampionshipName(e.target.value)}
-      />
-
-      
-
-      <div className="flex gap-3">
-        <div className="w-1/2 flex flex-col items-center justify-between shadow-md rounded-2xl px-2">
-
+    <div className="px-6 py-6 w-full flex flex-col justify-between relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)' }}>
+      <div className="flex gap-10 h-6/7">
+        <div className="w-1/2 h-[95%] flex flex-col shadow-md rounded-2xl border-2 border-gray-500">
           <RiderSelector
-            className="w-full h-96"
+            className="w-full h-full"
             riders={riders}
             selectedRiders={selectedRiders}
             toggleRider={toggleRider}
           />
         </div>
         
-        <div className="w-1/2 flex flex-col items-center justify-between shadow-md rounded-2xl px-2">
+        <div className="w-1/2 h-[95%] flex flex-col shadow-md rounded-2xl border-2 border-gray-500">
           <TrackSelector
-            className="w-full h-96"
+            className="w-full h-full"
             tracks={tracks}
             selectedTracks={selectedTracks}
             toggleTrack={toggleTrack}
           />
         </div>
       </div>
-      
 
-      <div className="flex flex-col items-center">
-        <button
-          onClick={handleSubmit}
-          className="mt-6 cursor-pointer bg-black hover:bg-red-900 text-white font-bold py-3 rounded-full w-1/4 transition"
-        >
-          Crea campionato
-        </button>
+      <div className="flex items-center justify-between h-1/7 w-full gap-5">
+        <div className="flex h-full w-5/6 shadow-md rounded-2xl border-2 gap-3 p-4 border-gray-500 bg-red-600">
+          <div className="flex flex-col w-full justify-center ">
+            <input
+              type="text"
+              placeholder="Nome campionato"
+              className="border h-10 border-gray-300 bg-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+              value={championshipName}
+              onChange={(e) => setChampionshipName(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="w-1/6 h-full flex justify-center items-center">
+          <button
+            onClick={handleSubmit}
+            className="cursor-pointer border border-gray-500 bg-black hover:bg-gray-500 text-white font-bold py-2 rounded-xl w-full h-full uppercase transition"
+          >
+            Crea campionato
+          </button>
+        </div>
       </div>
+      
       
 
     {message && (

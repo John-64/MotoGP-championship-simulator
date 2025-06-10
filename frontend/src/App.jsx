@@ -21,8 +21,6 @@ function AppContent() {
       document.title = "MotoGP Championship Simulator";
     } else if (path === "/championship") {
       document.title = "Crea campionato";
-    } else if (path.startsWith("/championship/") && path.includes("add-riders")) {
-      document.title = "Aggiungi piloti";
     } else if (path.startsWith("/championship/")) {
       document.title = "Dettagli campionato";
     } else if (path === "/riders") {
@@ -43,6 +41,17 @@ function AppContent() {
     }
   }, [location.state]);
 
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    if (message) {
+      setMessage(decodeURIComponent(message));
+      setTimeout(() => setMessage(""), 3000);
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 3000);
@@ -51,7 +60,7 @@ function AppContent() {
   }, [message]);
 
   return (
-    <>
+    <div className="h-screen flex flex-col">
       <Header />
       {message && (
         <p
@@ -64,20 +73,21 @@ function AppContent() {
           {message}
         </p>
       )}
-      <Routes className='w-full min-h-100 h-screen font-pt'>
-        <Route path="/" element={
+      <div className="flex-1 overflow-hidden">
+        <Routes className='w-full min-h-100 h-screen font-pt'>
+          <Route path="/" element={
             <div className='p-5'>
               <ChampionshipList />
-          </div>} 
-        />
-        <Route path="/championship" element={<ChampionshipForm />} />
-        <Route path="/championship/:id" element={<ChampionshipDetails />} />
-        <Route path="/championship/:id/add-riders" element={<AddRiders />} />
-        <Route path="/riders" element={<RidersList />} />
-        <Route path="/track" element={<TrackList />} />
-        <Route path="/results" element={<ResultList />} />
-      </Routes>
-    </>
+            </div>} 
+          />
+          <Route path="/championship" element={<ChampionshipForm />} />
+          <Route path="/championship/:id" element={<ChampionshipDetails />} />
+          <Route path="/riders" element={<RidersList />} />
+          <Route path="/track" element={<TrackList />} />
+          <Route path="/results" element={<ResultList />} />
+        </Routes>
+      </div>
+    </div>
   );
 }
 

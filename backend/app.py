@@ -274,7 +274,6 @@ class SimulatoreGara:
         base_time = max(base_time, 60.0)
         
         return base_time
-
     
     def controlla_incidenti_ml(self, pilota: PilotaGara) -> bool:
         """Gestisce incidenti usando ML"""
@@ -324,67 +323,74 @@ class SimulatoreGara:
             pilota.posizione = len(piloti_attivi) + i + 1
     
     def simula_giro(self):
-        """Simula un singolo giro con ML"""
+        """Simula un singolo giro con ML - VERSIONE CORRETTA"""
         eventi_giro = []
-        random.shuffle(self.piloti)
         
-        # Salva le posizioni prima del giro
+        # Salva le posizioni PRIMA del giro per identificare sorpassi
         posizioni_precedenti = {p.rider_name: p.posizione for p in self.piloti}
-
+        
+        # Simula il giro per ogni pilota
+        random.shuffle(self.piloti)  # Casualità nell'ordine di elaborazione
+        
         for pilota in self.piloti:
             if pilota.ritirato:
                 continue
             
+            # Controlla incidenti prima di calcolare il tempo
             if self.controlla_incidenti_ml(pilota):
                 eventi_giro.append({
                     "tipo": "ritiro",
                     "pilota": pilota.rider_name,
                     "motivo": pilota.motivo_ritiro,
-                    "giro_al_ritiro": self.giro_attuale
+                    "giro": self.giro_attuale
                 })
                 continue
             
+            # Calcola tempo giro
             tempo_giro = self.calcola_tempo_giro_ml(pilota)
             
-            # Bonus casuale per imprevedibilità (-0.5s a +0.5s)
+            # Bonus casuale per imprevedibilità
             bonus = random.uniform(-0.5, 0.5)
             tempo_giro += bonus
             
             pilota.tempo_totale += tempo_giro
             pilota.giri_completati += 1
             
+            # Gestione penalità (se presente)
             if pilota.penalita_tempo_giro_corrente > 0:
                 eventi_giro.append({
                     "tipo": "errore_lieve",
                     "pilota": pilota.rider_name,
-                    "tempo_perso": round(pilota.penalita_tempo_giro_corrente, 2),
+                    "motivo": f"Tempo perso: {round(pilota.penalita_tempo_giro_corrente, 2)}s",
                     "giro": self.giro_attuale
                 })
-
-        # Aggiorna posizioni dopo il giro
+                pilota.penalita_tempo_giro_corrente = 0  # Reset penalità
+        
+        # IMPORTANTE: Aggiorna posizioni DOPO aver simulato tutti i piloti
         self.aggiorna_posizioni()
-
-        # Controlla se ci sono stati sorpassi (posizione migliorata)
+        
+        # Ora controlla i sorpassi confrontando posizioni prima/dopo
         for pilota in self.piloti:
             if pilota.ritirato:
                 continue
-            pos_prev = posizioni_precedenti.get(pilota.rider_name)
-            if pos_prev is not None and pilota.posizione < pos_prev:
+                
+            pos_precedente = posizioni_precedenti.get(pilota.rider_name)
+            pos_attuale = pilota.posizione
+            
+            # Se la posizione è migliorata (numero più basso = posizione migliore)
+            if pos_precedente is not None and pos_attuale < pos_precedente:
+                posizioni_guadagnate = pos_precedente - pos_attuale
                 eventi_giro.append({
                     "tipo": "sorpasso",
                     "pilota": pilota.rider_name,
-                    "da_pos": pos_prev,
-                    "a_pos": pilota.posizione,
+                    "motivo": f"Sale dalla {pos_precedente}ª alla {pos_attuale}ª posizione (+{posizioni_guadagnate})",
                     "giro": self.giro_attuale
                 })
-
+        
         return eventi_giro
-
-
     
     def simula_gara_completa(self, num_giri: int = 20):
         """Simula gara completa con ML, con sorpassi e imprevedibilità"""
-
         self.giri_totali = num_giri
         self.inizializza_griglia()
         
@@ -392,7 +398,7 @@ class SimulatoreGara:
         if not self.ml_predictor.is_trained:
             self.ml_predictor.train_models()
         
-        # Assegna bonus/malus giornata a ogni pilota (-0.05 a +0.05)
+        # Assegna bonus/malus giornata a ogni pilota
         for pilota in self.piloti:
             pilota.bonus_giornata = random.uniform(-0.05, 0.05)
         
@@ -400,30 +406,15 @@ class SimulatoreGara:
         
         eventi_gara = []
         
+        # Simula ogni giro
         for giro in range(1, num_giri + 1):
             self.giro_attuale = giro
-            
-            # Ricorda posizioni prima del giro per identificare sorpassi
-            pos_before = {p.rider_name: p.posizione for p in self.piloti}
-            
             eventi_giro = self.simula_giro()
             
-            # Dopo aggiornamento posizioni, controllo sorpassi
-            for pilota in self.piloti:
-                old_pos = pos_before[pilota.rider_name]
-                new_pos = pilota.posizione
-                if new_pos < old_pos:  # pilota ha guadagnato posizioni
-                    eventi_giro.append({
-                        "tipo": "sorpasso",
-                        "pilota": pilota.rider_name,
-                        "posizione_precedente": old_pos,
-                        "posizione_nuova": new_pos,
-                        "giro": giro
-                    })
-            
-            if eventi_giro:
-                eventi_gara.extend([{**evento, "giro": giro} for evento in eventi_giro])
+            # Aggiungi tutti gli eventi del giro alla lista generale
+            eventi_gara.extend(eventi_giro)
         
+        # Prepara risultati finali
         risultati = []
         self.piloti.sort(key=lambda p: p.posizione)
         
@@ -450,12 +441,13 @@ class SimulatoreGara:
             "track_name": self.track_name,
             "total_laps": num_giri,
             "starting_grid": griglia_partenza,
-            "race_events": eventi_gara,
+            "race_events": eventi_gara,  # Ora include TUTTI i tipi di eventi
             "final_results": risultati,
             "race_stats": {
                 "finishers": len([p for p in self.piloti if not p.ritirato and p.giri_completati == self.giri_totali]),
                 "retirements": len([p for p in self.piloti if p.ritirato]),
                 "total_participants": len(self.piloti),
+                "total_events": len(eventi_gara),
                 "ml_enhanced": True
             }
         }
@@ -601,7 +593,7 @@ def calculate_championship_standings(championship_id):
 # Mantieni tutte le altre route API...
 @app.route("/api/riders", methods=["GET"])
 def get_riders():
-    raw_riders = list(db.riders.find({}, {"_id": 0, "Name": 1, "First Places": 1, "Second Places": 1, "Third Places": 1, "Number poles positions": 1, "Number World Championships": 1, "Country": 1, "Score": 1, "NormalizedScore": 1}))
+    raw_riders = list(db.riders.find({}, {"_id": 0, "Name": 1, "First Places": 1, "Second Places": 1, "Third Places": 1, "PolesPositions": 1, "WorldChampionships": 1, "Country": 1, "Score": 1, "NormalizedScore": 1}))
     riders = []
     for r in raw_riders:
         riders.append({
@@ -609,8 +601,8 @@ def get_riders():
             "rider_first_places": r.get("First Places", 0),
             "rider_second_places": r.get("Second Places", 0),
             "rider_third_places": r.get("Third Places", 0),
-            "rider_pole_positions": r.get("Number poles positions", 0),
-            "rider_world_championships": r.get("Number World Championships", 0),
+            "rider_pole_positions": r.get("PolesPositions", 0),
+            "rider_world_championships": r.get("WorldChampionships", 0),
             "rider_country": r.get("Country", "XX"),
             "rider_score": r.get("Score", 0),
             "rider_normalized_score": r.get("NormalizedScore", 0.5),

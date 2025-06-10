@@ -12,8 +12,9 @@ function ResultList() {
 
 
   return (
-    <div>
-      Test
+    <div className="w-full h-full flex justify-center items-center text-2xl ">
+      Qui ci saranno tutti i risultati dei vari campionati
+      {results}
     </div>
   );
 }

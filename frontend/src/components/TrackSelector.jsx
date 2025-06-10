@@ -8,40 +8,40 @@ export default function TrackSelector({ tracks, selectedTracks, toggleTrack, cla
   );
 
   return (
-    <div className="w-full">
-      <h2 className="font-semibold w-full text-center text-lg uppercase">Circuiti</h2>
-      <div className="flex justify-between items-center gap">
-        <div className="text-sm text-gray-600 font-semibold mb-2 w-1/4">
-          Selezionati: {selectedTracks.length}
-        </div>
-
-        <input
+    <div className={`${className}`}>
+      <div className="flex flex-col h-[15%] justify-start items-center px-4 bg-red-600 rounded-t-xl pt-2">
+        <div className="w-full h-full flex justify-between items-center gap-2">
+          <input
           type="text"
           placeholder="Cerca tracciati..."
-          className="border bg-white border-gray-300 rounded p-2 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+          className="border bg-white border-gray-300 rounded-lg p-1 w-3/4 h-10 mb-2 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div> 
+          />
+          <div className="flex justify-end items-center h-10 text-sm font-semibold mb-2 border bg-red-800 text-white border-red-300 rounded-lg px-2">
+            Selezionati: {selectedTracks.length}
+          </div>
+        </div>
+      </div>
 
-      <div className={`mb-2 ${className}`}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-full overflow-y-auto p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+      <div className="h-[85%] rounded-b-2xl border-t-2 border-gray-500 p-2 bg-white">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-full w-full p-3 overflow-y-auto">
           {filteredTracks.map((track) => {
             const isSelected = selectedTracks.some(t => t.track_name === track.track_name);
             return (
               <label
                 key={track.track_id}
-                className={`flex items-center gap-3 p-2 cursor-pointer rounded border ${
+                className={`flex items-center justify-center text-center gap-3 p-2 cursor-pointer rounded border bg-gray-100 border-gray-400 ${
                   isSelected
-                    ? "bg-green-100 border-green-400"
-                    : "border-transparent hover:bg-gray-100"
+                    ? "bg-red-100 border-red-400"
+                    : "hover:bg-gray-300"
                 } transition-colors duration-200`}
               >
                 <input
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleTrack(track)}
-                  className="form-checkbox h-5 w-5 text-green-600"
+                  className="hidden"
                 />
                 <span className="select-none text-gray-800">{track.track_name}</span>
               </label>
