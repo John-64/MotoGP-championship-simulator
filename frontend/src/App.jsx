@@ -16,7 +16,7 @@ function AppContent() {
     const path = location.pathname;
 
     if (path === "/") {
-      document.title = "MotoGP Championship Simulator";
+      document.title = "MotoGP Championship simulator";
     } else if (path === "/championship") {
       document.title = "Crea campionato";
     } else if (path.startsWith("/championship/")) {
@@ -26,7 +26,7 @@ function AppContent() {
     } else if (path === "/track") {
       document.title = "Lista circuiti";
     } else {
-      document.title = "MotoGP Championship Simulator";
+      document.title = "MotoGP Championship simulator";
     }
   }, [location]);
 
