@@ -137,7 +137,7 @@ export default function ChampionshipForm() {
   }
   
   return (
-    <div className="px-6 py-2 w-full flex flex-col justify-between relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)' }}>
+    <div className="px-6 py-2 w-full flex flex-col justify-between relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)'}}>
       <div className="flex items-center justify-between h-[3rem] w-full mb-4 mt-1 border-2 rounded-2xl">
         <input
           type="text"
@@ -150,9 +150,9 @@ export default function ChampionshipForm() {
         <div className="h-10 flex justify-center items-center">
           <button
             onClick={handleSubmit}
-            className="cursor-pointer bg-red-600 hover:bg-red-800 text-white font-semibold py-2 px-2 rounded-r-xl w-auto text-nowrap h-full uppercase transition"
+            className="cursor-pointer bg-red-600 hover:bg-red-800 text-white font-semibold py-2 px-3 rounded-r-xl w-auto text-nowrap h-full uppercase transition"
           >
-            Crea campionato
+            Crea gp
           </button>
         </div>
       </div>

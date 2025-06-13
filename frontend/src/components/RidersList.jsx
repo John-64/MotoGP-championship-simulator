@@ -65,9 +65,9 @@ function RidersList() {
             getSortedRiders().map((r, i) => (
               <li key={i} className="px-4 py-3 text-gray-700 hover:bg-gray-50 transition">
                 <div className="flex justify-between items-center">
-                  <div className="font-semibold flex flex-col justify-center items-start">
+                  <div className="font-semibold text-lg flex flex-col justify-center items-start">
                     {r.rider_name}
-                    <div className="text-xs font-light text-gray-400 flex items-center gap-1">
+                    <div className="text-sm font-light text-gray-400 flex items-center gap-1">
                       <ReactCountryFlag countryCode={r.rider_country && r.rider_country !== "0" ? r.rider_country : "UN"} svg style={{width: '1em', height: '1em'}}/>
                       {r.rider_country} • 1st place: {r.rider_first_places} • 2nd place: {r.rider_second_places} • 3rd place: {r.rider_third_places} • Pole positions: {r.rider_pole_positions}
                     </div>

@@ -2,14 +2,33 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "MotoGPDisplayBold";
-  src: local("MotoGPDisplayBold"),
-    url("./assets/fonts/MotoGPDisplayBold.ttf") format("opentype");
-  font-weight: light;
+  font-family: "MotoGP";
+  src: url("./assets/fonts/MGPDisplay-Bold.otf") format("opentype");
+  font-weight: 700;
 }
 
-@theme {
-    --font-pt: PT Sans, "sans-serif";
+@font-face {
+  font-family: "MotoGP";
+  src: url("./assets/fonts/MGPDisplay-Regular.otf") format("opentype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "MotoGP";
+  src: url("./assets/fonts/MGPDisplay-Light.otf") format("opentype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "MotoGPInline";
+  src: url("./assets/fonts/MGPInline-Regular.otf") format("opentype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "MotoGPInline";
+  src: url("./assets/fonts/MGPInline-Bold.otf") format("opentype");
+  font-weight: 700;
 }
 
 html, body, #root {
@@ -17,7 +36,29 @@ html, body, #root {
 }
 
 body {
-    background-color: #f4f4f4;
+  background-color: #f4f4f4;
+  font-family: "MotoGPDisplay", sans-serif;
+  font-weight: 500;
+}
+
+* {
+  font-family: "MotoGPDisplay", sans-serif;
+  font-weight: 500;
+}
+
+h2 {
+  font-family: "MotoGP", sans-serif;
+  font-weight: 700;
+}
+
+h3 {
+  font-family: "MotoGPInline", sans-serif;
+  font-weight: 700;
+}
+
+h5 {
+  font-family: "MotoGP", sans-serif;
+  font-weight: 700;
 }
 
 ::selection {

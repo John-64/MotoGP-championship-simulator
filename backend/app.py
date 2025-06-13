@@ -50,7 +50,6 @@ def create_championship():
 
     championship = {
         "name": championship_name,
-        "state": "beginning",
         "riders": riders_objectids,
         "tracks": tracks_objectids,
         "races": races
@@ -73,7 +72,6 @@ def list_championships():
         response.append({
             "id": str(c["_id"]),
             "name": c["name"],
-            "state": c.get("state", "beginning"),
             "riders": convert_objectid(riders),
             "tracks": convert_objectid(tracks),
             "races": convert_objectid(races)
@@ -92,15 +90,72 @@ def get_championship(id):
     return jsonify(champ)
 
 
+# Championship update
+@app.route("/api/championship/<id>", methods=["PUT"])
+def update_championship(id):
+    data = request.get_json()
+
+    try:
+        championship_object_id = ObjectId(id)
+    except Exception:
+        return jsonify({"error": "ID non valido."}), 400
+
+    # Recupera il campionato
+    campionato = db.championship.find_one({"_id": championship_object_id})
+    if not campionato:
+        return jsonify({"error": "Campionato non trovato."}), 404
+
+    # Aggiorna nome se fornito
+    if "name" in data:
+        db.championship.update_one(
+            {"_id": championship_object_id},
+            {"$set": {"name": data["name"]}}
+        )
+
+    # Elimina gare selezionate
+    if "races" in data:
+        try:
+            race_ids_to_delete = [ObjectId(rid) for rid in data["races"]]
+        except Exception:
+            return jsonify({"error": "Lista di ID gare non valida."}), 400
+
+        delete_result = db.race.delete_many({
+            "_id": {"$in": race_ids_to_delete},
+            "championship_id": championship_object_id
+        })
+
+        # Rimuovi anche gli ID dal campo "races" del campionato, se presente
+        db.championship.update_one(
+            {"_id": championship_object_id},
+            {"$pull": {"races": {"$in": race_ids_to_delete}}}
+        )
+
+    return jsonify({"message": "Campionato aggiornato e gare eliminate con successo."})
+
+
+
 # Championship deletion
 @app.route("/api/championship/<id>", methods=["DELETE"])
 def delete_championship(id):
-    result = db.championship.delete_one({"_id": ObjectId(id)})
+    try:
+        championship_object_id = ObjectId(id)
+    except Exception:
+        return jsonify({"error": "ID non valido."}), 400
+
+    # Elimina il campionato
+    result = db.championship.delete_one({"_id": championship_object_id})
 
     if result.deleted_count == 0:
         return jsonify({"error": "Campionato non trovato."}), 404
-    
-    return jsonify({"message": "Campionato eliminato."})
+
+    # Elimina tutte le gare associate
+    deleted_races = db.race.delete_many({"championship_id": championship_object_id})
+
+    return jsonify({
+        "message": "Campionato e relative gare eliminati.",
+        "deleted_races_count": deleted_races.deleted_count
+    })
+
 
 
 # Rider list

@@ -44,7 +44,7 @@ export default function RiderSelector({ riders, selectedRiders, toggleRider, cla
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <div className="flex justify-end items-center h-10 text-sm font-semibold mb-2 border bg-gray-700 text-white border-gray-800 rounded-lg px-2">
+          <div className="flex justify-end items-center h-8 text-sm font-semibold mb-2 border bg-gray-700 text-white border-gray-800 rounded-lg px-2">
             Selezionati: {selectedRiders.length}
           </div>
         </div>

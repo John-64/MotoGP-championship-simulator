@@ -2,13 +2,11 @@ import './index.css'
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Header from './Header';
-import AddRiders from "./components/AddRiders";
 import ChampionshipForm from "./components/ChampionshipForm";
 import ChampionshipList from "./components/ChampionshipList";
 import ChampionshipDetails from "./components/ChampionshipDetails";
 import RidersList from "./components/RidersList";
 import TrackList from './components/TrackList';
-import ResultList from './components/ResultList';
 
 function AppContent() {
   const location = useLocation();
@@ -27,8 +25,6 @@ function AppContent() {
       document.title = "Lista piloti";
     } else if (path === "/track") {
       document.title = "Lista circuiti";
-    } else if (path === "/results") {
-      document.title = "Risultati";
     } else {
       document.title = "MotoGP Championship Simulator";
     }
@@ -74,13 +70,12 @@ function AppContent() {
         </p>
       )}
       <div className="flex-1">
-        <Routes className='w-full min-h-100 h-screen font-pt'>
+        <Routes className='w-full min-h-100 h-screen'>
           <Route path="/" element={<ChampionshipList />} />
           <Route path="/championship" element={<ChampionshipForm />} />
           <Route path="/championship/:id" element={<ChampionshipDetails />} />
           <Route path="/riders" element={<RidersList />} />
           <Route path="/track" element={<TrackList />} />
-          <Route path="/results" element={<ResultList />} />
         </Routes>
       </div>
     </div>

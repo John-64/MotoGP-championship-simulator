@@ -37,7 +37,7 @@ function TrackList() {
             getFilteredTracks().map((t, i) => (
               <li key={i} className="px-4 py-3 text-gray-700 hover:bg-gray-50 transition">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold">{t.track_name}</span>
+                  <span className="font-semibold text-lg">{t.track_name}</span>
                   <ReactCountryFlag countryCode={t.track_country && t.track_country !== "0" ? t.track_country : "UN"} svg style={{width: '1.5em', height: '1.5em'}}/>
                 </div>
               </li>
