@@ -312,7 +312,7 @@ function ChampionshipDetails() {
               <tbody>
                 {riders.map((rider) => (
                   <tr key={rider.rider_id} className="border-b border-gray-200 hover:bg-gray-50 text-lg">
-                    <td className="px-4 py-2 font-semibold"><ReactCountryFlag countryCode={rider.rider_country} svg style={{width: '1em', height: '1em', marginRight: '10px'}}/> {rider.rider_name}</td>
+                    <td className="px-4 py-2 font-semibold"><ReactCountryFlag countryCode={rider.rider_country && rider.rider_country !== "0" ? rider.rider_country : "UN"} svg style={{width: '1em', height: '1em', marginRight: '10px'}}/>{rider.rider_name}</td>
                     <td className="px-4 py-2 text-center">{rider.rider_world_championships}</td>
                     <td className="px-4 py-2 text-center">{rider.rider_pole_positions}</td>
                     <td className="px-4 py-2 text-center">{rider.rider_first_places}</td>
@@ -523,7 +523,7 @@ function ChampionshipDetails() {
       
       {getAvailableTracks().length === 0 ? <></> : (
         <div className="px-6 mt-8 w-full mx-auto">
-          <h2 className="text-2xl font-semibold text-gray-900 uppercase">Prossimi eventi</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 uppercase">Prossime gare</h2>
           <section className="bg-white shadow border border-gray-200 overflow-x-auto">
               <table className="min-w-full table-auto text-gray-700">
                 <thead>
@@ -630,7 +630,7 @@ function ChampionshipDetails() {
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
 
             {races.length > 0 && (
