@@ -9,22 +9,7 @@ export default function TrackSelector({ tracks, selectedTracks, toggleTrack, cla
 
   return (
     <div className={`${className}`}>
-      <div className="flex flex-col h-[15%] justify-start items-center px-4 bg-red-600 rounded-t-xl pt-2">
-        <div className="w-full h-full flex justify-between items-center gap-2">
-          <input
-          type="text"
-          placeholder="Cerca tracciati..."
-          className="border bg-white border-gray-300 rounded-lg p-1 w-3/4 h-10 mb-2 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <div className="flex justify-end items-center h-10 text-sm font-semibold mb-2 border bg-red-800 text-white border-red-300 rounded-lg px-2">
-            Selezionati: {selectedTracks.length}
-          </div>
-        </div>
-      </div>
-
-      <div className="h-[85%] rounded-b-2xl border-t-2 border-gray-500 p-2 bg-white">
+      <div className="h-[90%] rounded-t-2xl border-t-0 border-gray-500 p-2 bg-white">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-full w-full p-3 overflow-y-auto">
           {filteredTracks.map((track) => {
             const isSelected = selectedTracks.some(t => t.track_name === track.track_name);
@@ -47,6 +32,21 @@ export default function TrackSelector({ tracks, selectedTracks, toggleTrack, cla
               </label>
             );
           })}
+        </div>
+      </div>
+
+      <div className="flex flex-col h-[10%] justify-start items-center px-4 bg-black rounded-b-xl pt-2">
+        <div className="w-full h-full flex justify-between items-center gap-2">
+          <input
+          type="text"
+          placeholder="Cerca tracciati..."
+          className="border bg-white border-gray-300 rounded-lg p-1 w-3/4 h-7 mb-2 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div className="flex justify-end items-center h-10 text-sm font-semibold mb-2 border bg-gray-700 text-white border-gray-800 rounded-lg px-2">
+            Selezionati: {selectedTracks.length}
+          </div>
         </div>
       </div>
     </div>

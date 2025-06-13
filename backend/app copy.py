@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from datetime import datetime
 from bson import ObjectId
 from raceSimulator import SimulatoreGara
 import os
@@ -14,7 +15,6 @@ CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 
-# Function for converting ObjectId to string
 def convert_objectid(obj):
     if isinstance(obj, list):
         return [convert_objectid(i) for i in obj]
@@ -25,8 +25,6 @@ def convert_objectid(obj):
     else:
         return obj
 
-
-# Create championship
 @app.route("/api/create_championship", methods=["POST"])
 def create_championship():
     data = request.get_json()
@@ -34,6 +32,7 @@ def create_championship():
     riders = data.get("riders", [])
     tracks = data.get("tracks", [])
     races = data.get("races", [])
+    standing = data.get("standing", [])
 
     if not championship_name:
         return jsonify({"error": "Il nome del campionato è obbligatorio."}), 400
@@ -42,6 +41,7 @@ def create_championship():
     if not tracks:
         return jsonify({"error": "Devi selezionare almeno un circuito."}), 400
 
+    # Converti ogni rider ID da stringa a ObjectId
     try:
         riders_objectids = [ObjectId(r) for r in riders]
         tracks_objectids = [ObjectId(t) for t in tracks]
@@ -51,14 +51,14 @@ def create_championship():
     championship = {
         "name": championship_name,
         "state": "beginning",
-        "riders": riders_objectids,
+        "riders": riders_objectids,   # qui metti la lista di ObjectId
         "tracks": tracks_objectids,
-        "races": races
+        "races": races,
+        "standings": standing
     }
 
     result = db.championship.insert_one(championship)
     return jsonify({"message": "Campionato creato!", "id": str(result.inserted_id)})
-
 
 # Championship list
 @app.route("/api/championship_list", methods=["GET"])
@@ -66,20 +66,13 @@ def list_championships():
     champ = db.championship.find()
     response = []
     for c in champ:
-        riders = c.get("riders", [])
-        tracks = c.get("tracks", [])
-        races = c.get("races", [])
-        
         response.append({
             "id": str(c["_id"]),
             "name": c["name"],
-            "state": c.get("state", "beginning"),
-            "riders": convert_objectid(riders),
-            "tracks": convert_objectid(tracks),
-            "races": convert_objectid(races)
+            "state": c.get("state", "beginning")
         })
-    return jsonify(response)
 
+    return jsonify(response)
 
 # Find championship by id
 @app.route("/api/championship/<id>", methods=["GET"])
@@ -91,7 +84,6 @@ def get_championship(id):
     champ = convert_objectid(champ)
     return jsonify(champ)
 
-
 # Championship deletion
 @app.route("/api/championship/<id>", methods=["DELETE"])
 def delete_championship(id):
@@ -101,7 +93,6 @@ def delete_championship(id):
         return jsonify({"error": "Campionato non trovato."}), 404
     
     return jsonify({"message": "Campionato eliminato."})
-
 
 # Rider list
 @app.route("/api/rider", methods=["GET"])
@@ -124,7 +115,6 @@ def get_riders():
         })
 
     return jsonify(riders)
-
 
 # Join between riders list and riders participants
 @app.route("/api/get_participants_riders", methods=["GET"])
@@ -190,7 +180,6 @@ def get_participants():
         "riders": champ.get("riders", [])
     })
 
-
 # Track list
 @app.route("/api/track", methods=["GET"])
 def get_track():
@@ -203,7 +192,6 @@ def get_track():
             "track_country": r.get("Country", "Unknown"),
         })
     return jsonify(track)
-
 
 # Join between track list and track selected
 @app.route("/api/get_selected_tracks", methods=["GET"])
@@ -226,9 +214,9 @@ def get_selected_tracks():
         },
         {
             "$lookup": {
-                "from": "track",
-                "localField": "tracks",
-                "foreignField": "_id",
+                "from": "track",              # Nome della collection dei tracciati
+                "localField": "tracks",       # Campo nella collection championship
+                "foreignField": "_id",        # Campo nella collection track
                 "as": "track_participants"
             }
         },
@@ -261,74 +249,6 @@ def get_selected_tracks():
     })
 
 
-# Race creation
-@app.route("/api/create_race", methods=["POST"])
-def create_race():
-    try:
-        data = request.get_json()
-
-        championship_id = data.get("championship_id")
-        track_name = data.get("track_name")
-        num_laps = data.get("num_laps")
-        race_results = data.get("race_results")
-
-        if not all([championship_id, track_name, num_laps, race_results]):
-            return jsonify({"error": "Parametri mancanti."}), 400
-
-        race_doc = {
-            "championship_id": ObjectId(championship_id),
-            "track_name": track_name,
-            "num_laps": num_laps,
-            "results": race_results
-        }
-
-        inserted = db.race.insert_one(race_doc)
-        race_id = inserted.inserted_id
-
-        # Collega la gara al campionato
-        db.championship.update_one(
-            {"_id": ObjectId(championship_id)},
-            {"$push": {"races": race_id}}
-        )
-
-        return jsonify({"message": "Gara creata con successo", "race_id": str(race_id)})
-
-    except Exception as e:
-        print(f"Errore durante la creazione della gara: {e}")
-        return jsonify({"error": f"Errore durante la creazione della gara: {str(e)}"}), 500
-
-
-# Selecting all the races with the championship id
-@app.route("/api/get_races_championship", methods=["GET"])
-def get_races_championship():
-    championship_id = request.args.get("id")
-    if not championship_id:
-        return jsonify({"error": "ID del campionato mancante"}), 400
-    try:
-        championship_identifier = ObjectId(championship_id)
-    except:
-        return jsonify({"error": "ID del campionato non valido"}), 400
-
-    pipeline = [
-        {
-            "$match": {
-                "championship_id": championship_identifier
-            }
-        }
-    ]
-
-    result = list(db.race.aggregate(pipeline))
-    if not result:
-        return jsonify({"error": "Campionato non trovato"}), 404
-
-    # Converte ObjectId in stringa
-    result_serialized = convert_objectid(result)
-
-    return jsonify({
-        "races": result_serialized
-    })
-
-
 # Race simulation
 @app.route("/api/championship/<championship_id>/simulate-race", methods=["POST"])
 def simulate_race(championship_id):
@@ -349,26 +269,55 @@ def simulate_race(championship_id):
         
         simulatore = SimulatoreGara(riders, track_name)
         risultati_gara = simulatore.simula_gara_completa(num_laps)
-
-        race_doc = {
-            "championship_id": ObjectId(championship_id),
+        
+        race_data = {
+            "championship_id": championship_id,
+            "race_name": f"GP {track_name}",
             "track_name": track_name,
+            "date": datetime.utcnow(),
             "num_laps": num_laps,
-            "results": risultati_gara
+            "detailed_results": risultati_gara["final_results"],
+            "race_events": risultati_gara["race_events"],
+            "race_stats": risultati_gara["race_stats"]
         }
+        
+        # Aggiorna il DB con la nuova gara
+        db.championship.update_one(
+            {"_id": ObjectId(championship_id)},
+            {"$push": {"races": race_data}},
+        )
+        
+        current_tracks = champ.get("tracks", [])
+        updated_tracks = [t for t in current_tracks if t.get("track_name") != track_name]
+        
+        champ_status_update = {}
+        if not updated_tracks:
+            champ_status_update["state"] = "finished"
+        elif champ.get("state") == "beginning":
+            champ_status_update["state"] = "racing"
 
-        inserted = db.race.insert_one(race_doc)
-        race_id = inserted.inserted_id
+        update_set_fields = {"tracks": updated_tracks}
+        if champ_status_update:
+            update_set_fields.update(champ_status_update)
 
         db.championship.update_one(
             {"_id": ObjectId(championship_id)},
-            {"$push": {"races": race_id}}
+            {"$set": update_set_fields}
         )
 
+        updated_standings = calculate_championship_standings(championship_id)
+        
+        db.championship.update_one(
+            {"_id": ObjectId(championship_id)},
+            {"$set": {"standings": updated_standings}}
+        )
+        
+        # --- Qui aggiungiamo i riders da restituire nella risposta ---
         return jsonify({
-            "message": "Gara simulata e salvata con successo!",
-            "race_id": str(race_id),
-            "race_results": risultati_gara
+            "message": "Gara simulata con successo usando ML!",
+            "race_results": risultati_gara,
+            "updated_standings": updated_standings,
+            "riders": piloti_per_simulazione  # <-- lista piloti da passare al frontend
         })
         
     except Exception as e:
@@ -376,5 +325,95 @@ def simulate_race(championship_id):
         return jsonify({"error": f"Errore durante la simulazione: {str(e)}"}), 500
 
 
+# Calculate standing
+def calculate_standing(championship_id):
+    champ = db.championship.find_one({"_id": ObjectId(championship_id)})
+
+    if not champ:
+        return []
+    
+    rider_points = {}
+    rider_info = {}
+    
+    for race in champ.get("race", []):
+        detailed_results = race.get("detailed_results", [])
+        
+        for result in detailed_results:
+            rider_name = result["rider_name"]
+            points = result.get("points", 0)
+            
+            if rider_name not in rider_points:
+                rider_points[rider_name] = 0
+                rider_info[rider_name] = {
+                    "rider_country": result.get("rider_country", "XX"),
+                    "races_finished": 0,
+                    "races_retired": 0,
+                    "wins": 0,
+                    "podiums": 0
+                }
+            
+            rider_points[rider_name] += points
+            
+            race_num_laps = race.get("num_laps", 0)
+            
+            if not result.get("retired", False) and result.get("completed_laps", 0) == race_num_laps:
+                rider_info[rider_name]["races_finished"] += 1
+                if result.get("position") == 1:
+                    rider_info[rider_name]["wins"] += 1
+                if result.get("position") <= 3:
+                    rider_info[rider_name]["podiums"] += 1
+            else:
+                rider_info[rider_name]["races_retired"] += 1
+    
+    standings = []
+    for rider_name, total_points in sorted(rider_points.items(), key=lambda x: x[1], reverse=True):
+        standings.append({
+            "position": len(standings) + 1,
+            "rider_name": rider_name,
+            "rider_country": rider_info[rider_name]["rider_country"],
+            "total_points": total_points,
+            "races_finished": rider_info[rider_name]["races_finished"],
+            "races_retired": rider_info[rider_name]["races_retired"],
+            "wins": rider_info[rider_name]["wins"],
+            "podiums": rider_info[rider_name]["podiums"]
+        })
+    
+    return standings
+
+@app.route("/api/championships/<championship_id>/standings", methods=["GET"])
+def get_standings(championship_id):
+    try:
+        champ = db.championship.find_one({"_id": ObjectId(championship_id)})
+        if not champ:
+            return jsonify({"error": "Campionato non trovato."}), 404
+        
+        return jsonify(champ.get("standings", []))
+        
+    except Exception as e:
+        return jsonify({"error": f"Errore nel recupero della classifica: {str(e)}"}), 500
+
+
+@app.route("/api/championships/<championship_id>/standings/recalculate", methods=["POST"])
+def recalculate_standings(championship_id):
+    try:
+        champ = db.championship.find_one({"_id": ObjectId(championship_id)})
+        if not champ:
+            return jsonify({"error": "Campionato non trovato."}), 404
+        
+        updated_standings = calculate_championship_standings(championship_id)
+        
+        db.championship.update_one(
+            {"_id": ObjectId(championship_id)},
+            {"$set": {"standings": updated_standings}}
+        )
+        
+        return jsonify({
+            "message": "Classifica ricalcolata con successo!",
+            "standings": updated_standings
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Errore nel ricalcolo della classifica: {str(e)}"}), 500
+    
 if __name__ == "__main__":
     app.run(debug=True)

@@ -73,13 +73,9 @@ function AppContent() {
           {message}
         </p>
       )}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1">
         <Routes className='w-full min-h-100 h-screen font-pt'>
-          <Route path="/" element={
-            <div className='p-5'>
-              <ChampionshipList />
-            </div>} 
-          />
+          <Route path="/" element={<ChampionshipList />} />
           <Route path="/championship" element={<ChampionshipForm />} />
           <Route path="/championship/:id" element={<ChampionshipDetails />} />
           <Route path="/riders" element={<RidersList />} />

@@ -7,7 +7,7 @@ function RidersList() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/riders")
+    fetch("http://127.0.0.1:5000/api/rider")
       .then(res => res.json())
       .then(data => setRiders(data))
       .catch(err => console.error(err));
@@ -68,14 +68,7 @@ function RidersList() {
                   <div className="font-semibold flex flex-col justify-center items-start">
                     {r.rider_name}
                     <div className="text-xs font-light text-gray-400 flex items-center gap-1">
-                      <ReactCountryFlag
-                        countryCode={r.rider_country}
-                        svg
-                        style={{
-                          width: '1em',
-                          height: '1em',
-                        }}
-                      />
+                      <ReactCountryFlag countryCode={r.rider_country && r.rider_country !== "0" ? r.rider_country : "UN"} svg style={{width: '1em', height: '1em'}}/>
                       {r.rider_country} • 1st place: {r.rider_first_places} • 2nd place: {r.rider_second_places} • 3rd place: {r.rider_third_places} • Pole positions: {r.rider_pole_positions}
                     </div>
                   </div>

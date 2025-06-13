@@ -1,6 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: "MotoGPDisplayBold";
+  src: local("MotoGPDisplayBold"),
+    url("./assets/fonts/MotoGPDisplayBold.ttf") format("opentype");
+  font-weight: light;
+}
+
 @theme {
     --font-pt: PT Sans, "sans-serif";
 }
@@ -11,4 +18,9 @@ html, body, #root {
 
 body {
     background-color: #f4f4f4;
+}
+
+::selection {
+  background-color: #ff0000;
+  color: white;
 }

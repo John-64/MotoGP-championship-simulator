@@ -9,15 +9,42 @@ export default function ChampionshipForm() {
   const [message, setMessage] = useState("");
   const [tracks, setTracks] = useState([]);
   const [selectedTracks, setSelectedTracks] = useState([]);
+  const [errors, setErrors] = useState({ name: false, riders: false, tracks: false });
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/riders")
-      .then((res) => res.json())
-      .then(setRiders);
+    const loadData = async () => {
+      setIsLoading(true);
+      setLoadingError(null);
       
-    fetch("http://127.0.0.1:5000/api/track")
-      .then((res) => res.json())
-      .then(setTracks);
+      try {
+        // Esegui entrambe le chiamate in parallelo
+        const [ridersResponse, tracksResponse] = await Promise.all([
+          fetch("http://127.0.0.1:5000/api/rider"),
+          fetch("http://127.0.0.1:5000/api/track")
+        ]);
+
+        if (!ridersResponse.ok || !tracksResponse.ok) {
+          throw new Error("Errore nel caricamento dei dati");
+        }
+
+        const [ridersData, tracksData] = await Promise.all([
+          ridersResponse.json(),
+          tracksResponse.json()
+        ]);
+
+        setRiders(ridersData);
+        setTracks(tracksData);
+      } catch (error) {
+        console.error("Errore nel caricamento:", error);
+        setLoadingError("Errore nel caricamento dei dati. Riprova.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   const toggleTrack = (track) => {
@@ -29,34 +56,33 @@ export default function ChampionshipForm() {
   };
 
   const toggleRider = (rider) => {
-    setSelectedRiders((prev) =>
-      prev.find((r) => r.rider_name === rider.rider_name)
-        ? prev.filter((r) => r.rider_name !== rider.rider_name)
+    setSelectedRiders(prev =>
+      prev.some(r => r.rider_id === rider.rider_id)
+        ? prev.filter(r => r.rider_id !== rider.rider_id)
         : [...prev, rider]
     );
   };
 
+  const validateForm = () => {
+    const newErrors = {
+      name: !championshipName.trim(),
+      riders: selectedRiders.length === 0,
+      tracks: selectedTracks.length === 0,
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(Boolean);
+  };
+
   const handleSubmit = async () => {
-    let missingFields = [];
+    if (!validateForm()) return;
 
-    if (!championshipName.trim()) missingFields.push("il NOME del campionato");
-    if (selectedRiders.length === 0) missingFields.push("almeno un PILOTA");
-    if (selectedTracks.length === 0) missingFields.push("almeno un TRACCIATO");
-
-    if (missingFields.length > 0) {
-      const message = "Inserisci " + missingFields.join(" e ");
-      setMessage(message);
-      setTimeout(() => setMessage(""), 2000);
-      return;
-    }
-
-    const response = await fetch("http://127.0.0.1:5000/api/create_championships", {
+    const response = await fetch("http://127.0.0.1:5000/api/create_championship", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: championshipName,
-        riders: selectedRiders,
-        tracks: selectedTracks,
+        riders: selectedRiders.map(r => r.rider_id),
+        tracks: selectedTracks.map(t => t.track_id),
       }),
     });
 
@@ -68,16 +94,71 @@ export default function ChampionshipForm() {
       setChampionshipName("");
       setSelectedRiders([]);
       setSelectedTracks([]);
+      setErrors({ name: false, riders: false, tracks: false });
       const successMessage = encodeURIComponent(data.message || "Campionato creato con successo!");
       window.location.href = `/?message=${successMessage}`;
     }
   };
 
+  const handleRetry = () => {
+    window.location.reload();
+  };
 
+  // Schermata di caricamento
+  if (isLoading) {
+    return (
+      <div className="px-6 py-6 w-full flex items-center justify-center" style={{ height: 'calc(100dvh - 60px)' }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+          <p className="text-lg font-medium text-gray-700">Caricamento dati...</p>
+          <p className="text-sm text-gray-500">Caricamento piloti e circuiti</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Schermata di errore
+  if (loadingError) {
+    return (
+      <div className="px-6 py-6 w-full flex items-center justify-center" style={{ height: 'calc(100dvh - 60px)' }}>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="text-6xl text-red-500">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-800">Errore di caricamento</h2>
+          <p className="text-gray-600">{loadingError}</p>
+          <button
+            onClick={handleRetry}
+            className="cursor-pointer bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"
+          >
+            Riprova
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="px-6 py-6 w-full flex flex-col justify-between relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)' }}>
-      <div className="flex gap-10 h-6/7">
-        <div className="w-1/2 h-[95%] flex flex-col shadow-md rounded-2xl border-2 border-gray-500">
+    <div className="px-6 py-2 w-full flex flex-col justify-between relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)' }}>
+      <div className="flex items-center justify-between h-[3rem] w-full mb-4 mt-1 border-2 rounded-2xl">
+        <input
+          type="text"
+          placeholder="Nome campionato"
+          className={` h-10 rounded-l-xl p-3 w-full transition bg-white focus:outline-none focus:ring-2 ${
+            errors.name ? "border-red-500 ring-red-300" : "border-gray-300 focus:ring-gray-400"}`}
+          value={championshipName}
+          onChange={(e) => setChampionshipName(e.target.value)}
+        />
+        <div className="h-10 flex justify-center items-center">
+          <button
+            onClick={handleSubmit}
+            className="cursor-pointer bg-red-600 hover:bg-red-800 text-white font-semibold py-2 px-2 rounded-r-xl w-auto text-nowrap h-full uppercase transition"
+          >
+            Crea campionato
+          </button>
+        </div>
+      </div>
+
+      <div className="flex gap-10 h-[calc(100%-3rem)]">
+        <div className={`w-1/2 h-[95%] flex flex-col shadow-md rounded-2xl border-2 ${errors.riders ? "border-red-600" : "border-gray-500"}`}>
           <RiderSelector
             className="w-full h-full"
             riders={riders}
@@ -85,8 +166,9 @@ export default function ChampionshipForm() {
             toggleRider={toggleRider}
           />
         </div>
+
         
-        <div className="w-1/2 h-[95%] flex flex-col shadow-md rounded-2xl border-2 border-gray-500">
+        <div className={`w-1/2 h-[95%] flex flex-col shadow-md rounded-2xl border-2 ${errors.tracks ? "border-red-600" : "border-gray-500"}`}>
           <TrackSelector
             className="w-full h-full"
             tracks={tracks}
@@ -95,43 +177,23 @@ export default function ChampionshipForm() {
           />
         </div>
       </div>
-
-      <div className="flex items-center justify-between h-1/7 w-full gap-5">
-        <div className="flex h-full w-5/6 shadow-md rounded-2xl border-2 gap-3 p-4 border-gray-500 bg-red-600">
-          <div className="flex flex-col w-full justify-center ">
-            <input
-              type="text"
-              placeholder="Nome campionato"
-              className="border h-10 border-gray-300 bg-white rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
-              value={championshipName}
-              onChange={(e) => setChampionshipName(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="w-1/6 h-full flex justify-center items-center">
-          <button
-            onClick={handleSubmit}
-            className="cursor-pointer border border-gray-500 bg-black hover:bg-gray-500 text-white font-bold py-2 rounded-xl w-full h-full uppercase transition"
-          >
-            Crea campionato
-          </button>
-        </div>
-      </div>
       
-      
-
-    {message && (
-      <p
-        className={`absolute left-1/2 top-0 transform -translate-x-1/2 mt-4 text-sm px-4 py-2 rounded shadow-md transition-all duration-300 z-50 ${
-          message.toLowerCase().includes("inserisci") || message.toLowerCase().includes("errore")
-            ? "text-red-700 bg-red-100 border border-red-300"
-            : "text-green-700 bg-green-100 border border-green-300"
-        }`}
-      >
-        {message}
-      </p>
-    )}
-
+      {message && (
+        <div
+          className={`fixed top-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-lg border text-sm flex items-center gap-3 transition-all duration-500 z-50
+            ${
+              message.toLowerCase().includes("inserisci") || message.toLowerCase().includes("errore")
+                ? "bg-red-50 text-red-700 border-red-300"
+                : "bg-green-50 text-green-700 border-green-300"
+            }
+          `}
+        >
+          <span className="text-xl">
+            {message.toLowerCase().includes("inserisci") || message.toLowerCase().includes("errore") ? "⚠️" : "✅"}
+          </span>
+          <span className="font-medium">{message}</span>
+        </div>
+      )}
     </div>
   );
 }

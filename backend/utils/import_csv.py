@@ -19,7 +19,7 @@ db = client[DB_NAME]
 # Removing all the existing collections
 for collection_name in db.list_collection_names():
     db.drop_collection(collection_name)
-    print(f"[X] Collection '{collection_name}' eliminata")
+    print(f"[X] Collection '{collection_name}' removed")
 
 # CSV import
 for filename in os.listdir(CLEAN_DATA_PATH):
@@ -31,4 +31,4 @@ for filename in os.listdir(CLEAN_DATA_PATH):
         db[collection_name].insert_many(data)
         print(f"[✓] Importato {filename} in collection '{collection_name}'")
 
-print("Importazione completata!")
+print("Import completed!")
