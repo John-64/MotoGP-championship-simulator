@@ -47,7 +47,9 @@ function ChampionshipList() {
                 onClick={() => goToDetails(ch.id)}
                 className="relative bg-white rounded-xl shadow p-4 cursor-pointer transition hover:scale-102"
             >
-              {state = ch.races.length === 0 ? "beginning": ch.races.length === ch.tracks.length? "finished": "racing"}
+              <span className={`hidden`}>
+                {state = ch.races.length === 0 ? "beginning": ch.races.length === ch.tracks.length? "finished": "racing"}
+              </span>
                 <span className={`absolute uppercase top-0 right-0 text-xs px-2 py-1 rounded-tr-lg ${stateBadgeStyle[state]}`}>
                     {ch.races.length === 0 ? "beginning" : ch.races.length === ch.tracks.length ? "finished" : "racing"}
                 </span>
