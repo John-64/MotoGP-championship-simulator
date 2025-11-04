@@ -1,53 +1,65 @@
-# MotoGP championship simulator 🏍️
-Piattaforma per la simulazione di campionati di MotoGP, sviluppata per il corso universitario "Basi di Dati II" seguito nell'anno accademico 2024/25 all'Università degli Studi di Salerno.
+# MotoGP championship simulator
+This project involves the development of an interactive web platform dedicated to simulating custom MotoGP championships, based on the dataset [MotoGP World Championship (1949–2022)](https://www.kaggle.com/datasets/alrizacelk/moto-gp-world-championship19492022). The application allows users to:
+- Create new championships;
+- Add or remove riders;
+- Record race results;
+- Automatically update the standings.
 
-Sviluppo di una piattaforma web interattiva dedicata alla simulazione di campionati MotoGP personalizzati, basata sul dataset [MotoGP World Championship (1949–2022)](https://www.kaggle.com/datasets/alrizacelk/moto-gp-world-championship19492022). L'applicazione consente agli utenti di creare nuovi campionati, aggiungere o rimuovere piloti, registrare i risultati delle gare e aggiornare automaticamente la classifica. I risultati della gara sono simulati tramite un algoritmo predittivo che sfrutta le statistiche storiche dei piloti. La piattaforma è realizzata con stack moderno composto da React e Tailwind CSS per il frontend, Flask per il backend, MongoDB per la gestione dei dati e Scikit-learn per l’integrazione di funzionalità di Machine Learning.
+Race outcomes are simulated through a predictive algorithm that leverages riders’ historical performance data.
 
 <p align="center"> 
-    <img src="media/logoProgetto.png" alt="Output" width="200">
+    <img src="media/logoProgetto.png" alt="Output" width="15%">
 </p>
 
-## Prerequisiti 📖
-- Python installato
-- Node.js e npm installati
+## Prerequisites
+- [Python](https://www.python.org/downloads/)
+- [Node.js](https://nodejs.org/en/download)
 
-## Installazione ⚙️
-1. Installa le dipendenze Python:
+## Installation
+1. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
-2. Avvia il backend:
+2. Start the backend:
    ```bash
    python app.py
-3. Spostati nella cartella del frontend e installa le dipendenze per il frontend:
+3. Move to the frontend folder and install the frontend dependencies:
    ```bash
    cd frontend
    npm install
-4. Avvia il frontend:
+4. Start the frontend:
    ```bash
    npm run dev
-5. Apri il browser e visita: http://127.0.0.1:5173
+5. Open your browser and go to:
+    ```bash
+   http://127.0.0.1:5173
 
-## Demo 📺
-Ecco qui alcuni screenshots del simulatore!
-- Homepage:
+## Demo
+Here are a few screenshots of the simulator!
 <p align="center"> 
-    <img src="media/5. MotoGPSImulator.png" alt="Output" width="80%">
+    <img src="media/5. MotoGPSImulator.png" alt="Output" width="45%">
+    <img src="media/7. MotoGPSImulator.png" alt="Output" width="45%">
 </p>
-- Lista piloti:
 <p align="center"> 
-    <img src="media/7. MotoGPSImulator.png" alt="Output" width="80%">
-</p>
-- Simulazione gara:
-<p align="center"> 
-    <img src="media/9. MotoGPSImulator.png" alt="Output" width="80%">
-</p>
-- Eventi in gara:
-<p align="center"> 
-    <img src="media/4. MotoGPSImulator.png" alt="Output" width="80%">
+    <img src="media/9. MotoGPSImulator.png" alt="Output" width="45%">
+    <img src="media/4. MotoGPSImulator.png" alt="Output" width="45%">
 </p>
 
-### Credits 🙏
+## Credits
 - [MotoGP](https://www.motogp.com/)
 - [Font](https://www.deviantart.com/nerdyboy1803/art/MGP-Font-Family-1131219299)
 - [Kaggle](https://www.kaggle.com/datasets/alrizacelk/moto-gp-world-championship19492022)
 - [Wikipedia](https://it.wikipedia.org/wiki/MotoGP)
+
+## Info
+This project was created for the course "Basi di Dati II" at the Università degli Studi di Salerno.
+
+## Contribution
+If you'd like to contribute to Bloky, please follow these steps:
+- Fork the repository;
+- Create a new branch (```git checkout -b feature/YourFeatureName```);
+- Commit your changes (```git commit -m 'Add some feature'```);
+- Push to the branch (```git push origin feature/YourFeatureName```);
+- Open a pull request.
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for details.
